@@ -67,6 +67,7 @@ install_neovim() {
   rm -rf "$NVIM_DIR"
   mkdir -p "$NVIM_DIR"
 
+  echo "Fetching neovim from $url"
   if command -v curl &>/dev/null; then
     curl -fsSL "$url" | tar xz -C "$NVIM_DIR" --strip-components=1
   elif command -v wget &>/dev/null; then
