@@ -7,7 +7,7 @@ set -e
 #    or: bash setup-nvim.sh
 # =============================================================
 
-NVIM_VERSION="v0.10.2"  # Pin to a known stable version
+NVIM_VERSION="v0.10.3"  # Pin to a known stable version
 NVIM_DIR="${HOME}/.local/nvim"
 NVIM_BIN="${HOME}/.local/bin/nvim"
 CONFIG_DIR="${HOME}/.config/nvim"
@@ -22,9 +22,8 @@ get_platform() {
   case "$os" in
     Linux)
       case "$arch" in
-        x86_64)  echo "linux64" ;;
-        aarch64) echo "linux-arm64" ;;
-        arm64)   echo "linux-arm64" ;;
+        x86_64)  echo "linux-x86_64" ;;
+        aarch64|arm64) echo "linux-aarch64" ;;
         *)       echo "unsupported"; return 1 ;;
       esac
       ;;
@@ -40,6 +39,37 @@ get_platform() {
   esac
 }
 
+# Install Neovim using system package manager (for aarch64)
+install_neovim_package_manager() {
+  echo "📦 Installing Neovim via package manager..."
+  
+  if command -v apt-get &>/dev/null; then
+    echo "Detected Debian/Ubuntu - installing from apt"
+    echo "⚠️  Note: apt version may be older. Run 'nvim --version' to check."
+    sudo apt-get update && sudo apt-get install -y neovim
+    NVIM_BIN="$(which nvim)"
+  elif command -v dnf &>/dev/null; then
+    echo "Detected Fedora/RHEL - installing from dnf"
+    sudo dnf install -y neovim
+    NVIM_BIN="$(which nvim)"
+  elif command -v pacman &>/dev/null; then
+    echo "Detected Arch - installing from pacman"
+    sudo pacman -S --noconfirm neovim
+    NVIM_BIN="$(which nvim)"
+  elif command -v apk &>/dev/null; then
+    echo "Detected Alpine - installing from apk"
+    sudo apk add neovim
+    NVIM_BIN="$(which nvim)"
+  else
+    echo "❌ No supported package manager found"
+    echo "   Please install Neovim manually: https://github.com/neovim/neovim/blob/master/INSTALL.md"
+    exit 1
+  fi
+  
+  echo "✅ Neovim installed via package manager"
+  nvim --version | head -1
+}
+
 # Install Neovim from GitHub releases (no sudo required)
 install_neovim() {
   local platform
@@ -50,24 +80,25 @@ install_neovim() {
     exit 1
   fi
 
-  local tarball="nvim-${platform}.tar.gz"
-  local url
-
-  # Official releases only have linux64, not linux-arm64
-  # Use neovim-releases repo for ARM builds
-  if [ "$platform" = "linux-arm64" ]; then
-    url="https://github.com/neovim/neovim-releases/releases/download/${NVIM_VERSION}/${tarball}"
-  else
-    url="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/${tarball}"
+  # aarch64 Linux has no official binary - use package manager
+  if [ "$platform" = "linux-aarch64" ]; then
+    echo "⚠️  No official Neovim binary for Linux aarch64"
+    echo "   Falling back to system package manager..."
+    echo ""
+    install_neovim_package_manager
+    return
   fi
 
+  local tarball="nvim-${platform}.tar.gz"
+  local url="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/${tarball}"
+
   echo "📦 Downloading Neovim ${NVIM_VERSION} for ${platform}..."
+  echo "   URL: ${url}"
   
   mkdir -p "${HOME}/.local/bin"
   rm -rf "$NVIM_DIR"
   mkdir -p "$NVIM_DIR"
 
-  echo "Fetching neovim from $url"
   if command -v curl &>/dev/null; then
     curl -fsSL "$url" | tar xz -C "$NVIM_DIR" --strip-components=1
   elif command -v wget &>/dev/null; then
