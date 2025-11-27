@@ -138,6 +138,32 @@ install_neovim() {
   echo "✅ Neovim installed to ${NVIM_BIN}"
 }
 
+# Ensure C compiler is available (required for treesitter)
+ensure_c_compiler() {
+  if command -v gcc &>/dev/null || command -v cc &>/dev/null || command -v clang &>/dev/null; then
+    return 0
+  fi
+  
+  echo "📦 Installing C compiler (required for treesitter)..."
+  
+  if command -v apt-get &>/dev/null; then
+    sudo apt-get update && sudo apt-get install -y build-essential
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y gcc
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm base-devel
+  elif command -v apk &>/dev/null; then
+    sudo apk add build-base
+  else
+    echo "⚠️  No C compiler found and couldn't install one automatically"
+    echo "   Treesitter syntax highlighting may not work"
+    echo "   Install gcc manually: sudo apt install build-essential"
+    return 1
+  fi
+  
+  echo "✅ C compiler installed"
+}
+
 # Install plugins
 install_plugins() {
   echo "📦 Installing plugins..."
@@ -147,6 +173,9 @@ install_plugins() {
     echo "⚠️  git not found, skipping plugin install"
     return
   fi
+
+  # Ensure C compiler for treesitter
+  ensure_c_compiler
 
   # nvim-osc52 - clipboard over SSH
   if [ ! -d "${PLUGIN_DIR}/nvim-osc52" ]; then
