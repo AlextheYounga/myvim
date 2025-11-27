@@ -7,7 +7,7 @@ set -e
 #    or: bash setup-nvim.sh
 # =============================================================
 
-NVIM_VERSION="v0.10.3"  # Pin to a known stable version
+NVIM_VERSION="v0.11.5"  # Pin to a known stable version
 NVIM_DIR="${HOME}/.local/nvim"
 NVIM_BIN="${HOME}/.local/bin/nvim"
 CONFIG_DIR="${HOME}/.config/nvim"
