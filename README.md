@@ -48,6 +48,7 @@ nvim
 | `Space + E` | Reveal current file in explorer |
 | `Space + ?` | Open searchable Vim cheatsheet |
 | `Space` + wait | Show all leader keybindings (which-key) |
+| `Space + Tab` | Toggle focus between tree and editor |
 | `Ctrl + a` | Select all |
 | `Ctrl + d` | Scroll down (centered) |
 | `Ctrl + u` | Scroll up (centered) |
