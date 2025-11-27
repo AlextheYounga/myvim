@@ -39,35 +39,60 @@ get_platform() {
   esac
 }
 
-# Install Neovim using system package manager (for aarch64)
-install_neovim_package_manager() {
-  echo "📦 Installing Neovim via package manager..."
+# Install Neovim build dependencies
+install_build_deps() {
+  echo "📦 Installing build dependencies..."
   
   if command -v apt-get &>/dev/null; then
-    echo "Detected Debian/Ubuntu - installing from apt"
-    echo "⚠️  Note: apt version may be older. Run 'nvim --version' to check."
-    sudo apt-get update && sudo apt-get install -y neovim
-    NVIM_BIN="$(which nvim)"
+    sudo apt-get update
+    sudo apt-get install -y ninja-build gettext cmake unzip curl build-essential
   elif command -v dnf &>/dev/null; then
-    echo "Detected Fedora/RHEL - installing from dnf"
-    sudo dnf install -y neovim
-    NVIM_BIN="$(which nvim)"
+    sudo dnf install -y ninja-build cmake gcc make unzip gettext curl
   elif command -v pacman &>/dev/null; then
-    echo "Detected Arch - installing from pacman"
-    sudo pacman -S --noconfirm neovim
-    NVIM_BIN="$(which nvim)"
+    sudo pacman -S --noconfirm base-devel cmake unzip ninja curl
   elif command -v apk &>/dev/null; then
-    echo "Detected Alpine - installing from apk"
-    sudo apk add neovim
-    NVIM_BIN="$(which nvim)"
+    sudo apk add build-base cmake coreutils curl unzip gettext-tiny-dev ninja
   else
-    echo "❌ No supported package manager found"
-    echo "   Please install Neovim manually: https://github.com/neovim/neovim/blob/master/INSTALL.md"
+    echo "❌ No supported package manager found for installing build deps"
     exit 1
   fi
+}
+
+# Build Neovim from source (for aarch64 Linux)
+build_neovim_from_source() {
+  echo "🔨 Building Neovim ${NVIM_VERSION} from source..."
+  echo "   This may take a few minutes..."
   
-  echo "✅ Neovim installed via package manager"
-  nvim --version | head -1
+  install_build_deps
+  
+  local build_dir="${HOME}/.local/src/neovim"
+  rm -rf "$build_dir"
+  mkdir -p "$build_dir"
+  
+  # Download source
+  local source_url="https://github.com/neovim/neovim/archive/refs/tags/${NVIM_VERSION}.tar.gz"
+  echo "   Downloading source from: ${source_url}"
+  
+  if command -v curl &>/dev/null; then
+    curl -fsSL "$source_url" | tar xz -C "$build_dir" --strip-components=1
+  elif command -v wget &>/dev/null; then
+    wget -qO- "$source_url" | tar xz -C "$build_dir" --strip-components=1
+  fi
+  
+  cd "$build_dir"
+  
+  # Build with CMAKE_INSTALL_PREFIX to install to ~/.local/nvim
+  make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$NVIM_DIR"
+  make install
+  
+  # Symlink to ~/.local/bin
+  mkdir -p "${HOME}/.local/bin"
+  ln -sf "${NVIM_DIR}/bin/nvim" "$NVIM_BIN"
+  
+  # Cleanup source
+  rm -rf "$build_dir"
+  
+  echo "✅ Neovim built and installed to ${NVIM_BIN}"
 }
 
 # Install Neovim from GitHub releases (no sudo required)
@@ -80,12 +105,12 @@ install_neovim() {
     exit 1
   fi
 
-  # aarch64 Linux has no official binary - use package manager
+  # aarch64 Linux has no official binary - build from source
   if [ "$platform" = "linux-aarch64" ]; then
     echo "⚠️  No official Neovim binary for Linux aarch64"
-    echo "   Falling back to system package manager..."
+    echo "   Building from source..."
     echo ""
-    install_neovim_package_manager
+    build_neovim_from_source
     return
   fi
 
