@@ -56,20 +56,38 @@ install_neovim() {
   echo "✅ Neovim installed to ${NVIM_BIN}"
 }
 
-# Install nvim-osc52 plugin
+# Install plugins
 install_plugins() {
   echo "📦 Installing plugins..."
   mkdir -p "$PLUGIN_DIR"
 
+  if ! command -v git &>/dev/null; then
+    echo "⚠️  git not found, skipping plugin install"
+    return
+  fi
+
+  # nvim-osc52 - clipboard over SSH
   if [ ! -d "${PLUGIN_DIR}/nvim-osc52" ]; then
-    if command -v git &>/dev/null; then
-      git clone --depth 1 https://github.com/ojroques/nvim-osc52.git "${PLUGIN_DIR}/nvim-osc52"
-      echo "✅ Installed nvim-osc52"
-    else
-      echo "⚠️  git not found, skipping plugin install"
-    fi
+    git clone --depth 1 https://github.com/ojroques/nvim-osc52.git "${PLUGIN_DIR}/nvim-osc52"
+    echo "✅ Installed nvim-osc52"
   else
     echo "✅ nvim-osc52 already installed"
+  fi
+
+  # nvim-tree - file explorer sidebar
+  if [ ! -d "${PLUGIN_DIR}/nvim-tree.lua" ]; then
+    git clone --depth 1 https://github.com/nvim-tree/nvim-tree.lua.git "${PLUGIN_DIR}/nvim-tree.lua"
+    echo "✅ Installed nvim-tree"
+  else
+    echo "✅ nvim-tree already installed"
+  fi
+
+  # nvim-web-devicons - file icons (optional but nice)
+  if [ ! -d "${PLUGIN_DIR}/nvim-web-devicons" ]; then
+    git clone --depth 1 https://github.com/nvim-tree/nvim-web-devicons.git "${PLUGIN_DIR}/nvim-web-devicons"
+    echo "✅ Installed nvim-web-devicons"
+  else
+    echo "✅ nvim-web-devicons already installed"
   fi
 }
 

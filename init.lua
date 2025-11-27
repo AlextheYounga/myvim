@@ -42,6 +42,44 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up centered" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -----------------------------------------------------------
+-- File Explorer (nvim-tree)
+-----------------------------------------------------------
+local tree_ok, nvimtree = pcall(require, "nvim-tree")
+if tree_ok then
+  -- Disable netrw (vim's built-in explorer) to avoid conflicts
+  vim.g.loaded_netrw = 1
+  vim.g.loaded_netrwPlugin = 1
+
+  nvimtree.setup({
+    view = {
+      width = 30,
+      side = "left",
+    },
+    renderer = {
+      icons = {
+        show = {
+          file = true,
+          folder = true,
+          folder_arrow = true,
+          git = true,
+        },
+      },
+    },
+    filters = {
+      dotfiles = false,  -- show hidden files
+    },
+    git = {
+      enable = true,
+      ignore = false,
+    },
+  })
+
+  -- Keymaps
+  vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+  vim.keymap.set("n", "<leader>E", "<cmd>NvimTreeFindFile<CR>", { desc = "Find current file in explorer" })
+end
+
+-----------------------------------------------------------
 -- OSC52 clipboard: any yank → local clipboard
 -----------------------------------------------------------
 -- Works over SSH, tmux, etc. - copies to YOUR local machine
