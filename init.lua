@@ -7,22 +7,44 @@ local opt = vim.opt
 
 opt.mouse = "a"            -- enable mouse in terminal
 opt.number = true          -- show line numbers
-opt.relativenumber = false -- disable relative numbers (no "backwards" effect)
+opt.relativenumber = false -- disable relative numbers
 opt.wrap = false           -- don't wrap long lines
+opt.termguicolors = true   -- enable 24-bit colors
+opt.signcolumn = "yes"     -- always show sign column
+opt.updatetime = 250       -- faster completion
+opt.timeoutlen = 300       -- faster key sequence completion
+opt.clipboard = "unnamedplus" -- use system clipboard when available
+
+-- Search settings
+opt.ignorecase = true      -- ignore case in search
+opt.smartcase = true       -- unless uppercase is used
+opt.hlsearch = true        -- highlight search results
+
+-- Indentation
+opt.expandtab = true       -- use spaces instead of tabs
+opt.shiftwidth = 2         -- shift 2 spaces
+opt.tabstop = 2            -- tab = 2 spaces
+opt.smartindent = true     -- auto-indent new lines
 
 -----------------------------------------------------------
 -- Select all (Ctrl+A)
 -----------------------------------------------------------
--- ggVG = go to top, select to bottom
 vim.keymap.set({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all" })
 
--- If you configure your terminal to send Ctrl+A when you press Command+A,
--- this becomes "Command+A selects entire file" inside Neovim.
+-----------------------------------------------------------
+-- Better navigation
+-----------------------------------------------------------
+-- Keep cursor centered when scrolling
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down centered" })
+vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up centered" })
+
+-- Clear search highlight with Escape
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -----------------------------------------------------------
 -- OSC52 clipboard: any yank → local clipboard
 -----------------------------------------------------------
--- Requires: ojroques/nvim-osc52 (the script you ran installs it)
+-- Works over SSH, tmux, etc. - copies to YOUR local machine
 local ok, osc52 = pcall(require, "osc52")
 if ok then
   osc52.setup({
@@ -31,16 +53,20 @@ if ok then
     trim = false,
   })
 
-  -- Whenever you yank (y, yy, y$, visual y, etc.), send it to local clipboard.
-  -- This includes `yy`, which is what you asked for.
   vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function()
       if vim.v.event.operator == "y" then
-        -- Use the register that was yanked from; default is unnamed ("")
         local reg = vim.v.event.regname
         if reg == "" then reg = '"' end
         osc52.copy_register(reg)
       end
+    end,
+  })
+else
+  -- Fallback: highlight yanked text (built into Neovim 0.10+)
+  vim.api.nvim_create_autocmd("TextYankPost", {
+    callback = function()
+      vim.highlight.on_yank({ timeout = 200 })
     end,
   })
 end
