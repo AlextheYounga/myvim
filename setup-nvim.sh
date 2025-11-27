@@ -129,6 +129,14 @@ install_plugins() {
   else
     echo "✅ nvim-treesitter already installed"
   fi
+
+  # onedark - colorscheme with great treesitter support
+  if [ ! -d "${PLUGIN_DIR}/onedark.nvim" ]; then
+    git clone --depth 1 https://github.com/navarasu/onedark.nvim.git "${PLUGIN_DIR}/onedark.nvim"
+    echo "✅ Installed onedark colorscheme"
+  else
+    echo "✅ onedark already installed"
+  fi
 }
 
 # Copy init.lua configuration

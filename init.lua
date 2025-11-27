@@ -27,6 +27,21 @@ opt.tabstop = 2            -- tab = 2 spaces
 opt.smartindent = true     -- auto-indent new lines
 
 -----------------------------------------------------------
+-- Colorscheme
+-----------------------------------------------------------
+-- onedark variants: "dark", "darker", "cool", "deep", "warm", "warmer", "light"
+local onedark_ok, onedark = pcall(require, "onedark")
+if onedark_ok then
+  onedark.setup({
+    style = "darker",  -- Choose: dark, darker, cool, deep, warm, warmer, light
+  })
+  onedark.load()
+else
+  -- Fallback to built-in if onedark not installed
+  vim.cmd("colorscheme habamax")
+end
+
+-----------------------------------------------------------
 -- Better navigation
 -----------------------------------------------------------
 -- Keep cursor centered when scrolling
