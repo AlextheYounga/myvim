@@ -27,11 +27,6 @@ opt.tabstop = 2            -- tab = 2 spaces
 opt.smartindent = true     -- auto-indent new lines
 
 -----------------------------------------------------------
--- Select all (Ctrl+A)
------------------------------------------------------------
-vim.keymap.set({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all" })
-
------------------------------------------------------------
 -- Better navigation
 -----------------------------------------------------------
 -- Keep cursor centered when scrolling
@@ -40,6 +35,35 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up centered" })
 
 -- Clear search highlight with Escape
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+
+-----------------------------------------------------------
+-- Which-Key (keybinding cheatsheet)
+-----------------------------------------------------------
+local wk_ok, wk = pcall(require, "which-key")
+if wk_ok then
+  wk.setup({
+    delay = 300,  -- show popup after 300ms
+    icons = {
+      mappings = false,  -- disable icons (works better in SSH)
+    },
+  })
+
+  -- Register key groups for better organization
+  wk.add({
+    { "<leader>e", desc = "Toggle file explorer" },
+    { "<leader>E", desc = "Find file in explorer" },
+    { "<leader>?", desc = "Vim cheatsheet" },
+  })
+end
+
+-----------------------------------------------------------
+-- Cheatsheet (searchable vim commands)
+-----------------------------------------------------------
+local cheat_ok, _ = pcall(require, "cheatsheet")
+if cheat_ok then
+  -- Press <leader>? to open searchable cheatsheet
+  vim.keymap.set("n", "<leader>?", "<cmd>Cheatsheet<CR>", { desc = "Vim cheatsheet" })
+end
 
 -----------------------------------------------------------
 -- File Explorer (nvim-tree)

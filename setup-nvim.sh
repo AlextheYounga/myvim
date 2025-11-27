@@ -89,6 +89,38 @@ install_plugins() {
   else
     echo "✅ nvim-web-devicons already installed"
   fi
+
+  # which-key - keybinding cheatsheet popup
+  if [ ! -d "${PLUGIN_DIR}/which-key.nvim" ]; then
+    git clone --depth 1 https://github.com/folke/which-key.nvim.git "${PLUGIN_DIR}/which-key.nvim"
+    echo "✅ Installed which-key"
+  else
+    echo "✅ which-key already installed"
+  fi
+
+  # plenary - required dependency for telescope
+  if [ ! -d "${PLUGIN_DIR}/plenary.nvim" ]; then
+    git clone --depth 1 https://github.com/nvim-lua/plenary.nvim.git "${PLUGIN_DIR}/plenary.nvim"
+    echo "✅ Installed plenary"
+  else
+    echo "✅ plenary already installed"
+  fi
+
+  # telescope - fuzzy finder (required for cheatsheet)
+  if [ ! -d "${PLUGIN_DIR}/telescope.nvim" ]; then
+    git clone --depth 1 https://github.com/nvim-telescope/telescope.nvim.git "${PLUGIN_DIR}/telescope.nvim"
+    echo "✅ Installed telescope"
+  else
+    echo "✅ telescope already installed"
+  fi
+
+  # cheatsheet - searchable vim commands cheatsheet
+  if [ ! -d "${PLUGIN_DIR}/cheatsheet.nvim" ]; then
+    git clone --depth 1 https://github.com/sudormrfbin/cheatsheet.nvim.git "${PLUGIN_DIR}/cheatsheet.nvim"
+    echo "✅ Installed cheatsheet"
+  else
+    echo "✅ cheatsheet already installed"
+  fi
 }
 
 # Copy init.lua configuration
