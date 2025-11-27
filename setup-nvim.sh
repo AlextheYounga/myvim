@@ -13,30 +13,55 @@ NVIM_BIN="${HOME}/.local/bin/nvim"
 CONFIG_DIR="${HOME}/.config/nvim"
 PLUGIN_DIR="${HOME}/.local/share/nvim/site/pack/plugins/start"
 
-# Detect architecture
-get_arch() {
-  case "$(uname -m)" in
-    x86_64)  echo "x86_64" ;;
-    aarch64) echo "aarch64" ;;
-    arm64)   echo "aarch64" ;;
-    *)       echo "unsupported"; return 1 ;;
+# Detect architecture and OS
+get_platform() {
+  local os arch
+  os="$(uname -s)"
+  arch="$(uname -m)"
+
+  case "$os" in
+    Linux)
+      case "$arch" in
+        x86_64)  echo "linux64" ;;
+        aarch64) echo "linux-arm64" ;;
+        arm64)   echo "linux-arm64" ;;
+        *)       echo "unsupported"; return 1 ;;
+      esac
+      ;;
+    Darwin)
+      case "$arch" in
+        x86_64)  echo "macos-x86_64" ;;
+        arm64)   echo "macos-arm64" ;;
+        *)       echo "unsupported"; return 1 ;;
+      esac
+      ;;
+    *)
+      echo "unsupported"; return 1 ;;
   esac
 }
 
 # Install Neovim from GitHub releases (no sudo required)
 install_neovim() {
-  local arch
-  arch=$(get_arch)
+  local platform
+  platform=$(get_platform)
   
-  if [ "$arch" = "unsupported" ]; then
-    echo "❌ Unsupported architecture: $(uname -m)"
+  if [ "$platform" = "unsupported" ]; then
+    echo "❌ Unsupported platform: $(uname -s) $(uname -m)"
     exit 1
   fi
 
-  local tarball="nvim-linux-${arch}.tar.gz"
-  local url="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/${tarball}"
+  local tarball="nvim-${platform}.tar.gz"
+  local url
 
-  echo "📦 Downloading Neovim ${NVIM_VERSION} for ${arch}..."
+  # Official releases only have linux64, not linux-arm64
+  # Use neovim-releases repo for ARM builds
+  if [ "$platform" = "linux-arm64" ]; then
+    url="https://github.com/neovim/neovim-releases/releases/download/${NVIM_VERSION}/${tarball}"
+  else
+    url="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/${tarball}"
+  fi
+
+  echo "📦 Downloading Neovim ${NVIM_VERSION} for ${platform}..."
   
   mkdir -p "${HOME}/.local/bin"
   rm -rf "$NVIM_DIR"
