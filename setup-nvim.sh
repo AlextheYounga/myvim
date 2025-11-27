@@ -121,6 +121,14 @@ install_plugins() {
   else
     echo "✅ cheatsheet already installed"
   fi
+
+  # nvim-treesitter - syntax highlighting and code parsing
+  if [ ! -d "${PLUGIN_DIR}/nvim-treesitter" ]; then
+    git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter.git "${PLUGIN_DIR}/nvim-treesitter"
+    echo "✅ Installed nvim-treesitter"
+  else
+    echo "✅ nvim-treesitter already installed"
+  fi
 }
 
 # Copy init.lua configuration

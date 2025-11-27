@@ -66,6 +66,37 @@ if cheat_ok then
 end
 
 -----------------------------------------------------------
+-- Treesitter (syntax highlighting)
+-----------------------------------------------------------
+local ts_ok, treesitter = pcall(require, "nvim-treesitter.configs")
+if ts_ok then
+  treesitter.setup({
+    -- Install languages automatically when opening a file
+    auto_install = true,
+
+    -- Or pre-install common languages (runs on first load)
+    ensure_installed = {
+      "lua", "vim", "vimdoc",      -- nvim config
+      "bash", "fish",              -- shell
+      "python", "javascript", "typescript", "tsx",  -- scripting
+      "json", "yaml", "toml",      -- config files
+      "html", "css", "php", "ruby", "vue",	-- web
+      "markdown", "markdown_inline",
+      "go", "rust", "c", "zig",         -- systems
+      "dockerfile", "terraform",  -- devops
+    },
+
+    highlight = {
+      enable = true,  -- enable syntax highlighting
+    },
+
+    indent = {
+      enable = true,  -- better auto-indentation
+    },
+  })
+end
+
+-----------------------------------------------------------
 -- File Explorer (nvim-tree)
 -----------------------------------------------------------
 local tree_ok, nvimtree = pcall(require, "nvim-tree")
