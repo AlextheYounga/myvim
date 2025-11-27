@@ -81,13 +81,27 @@ install_config() {
   # Get the directory where this script is located
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   
-  if [ -f "${SCRIPT_DIR}/init.lua" ]; then
-    cp "${SCRIPT_DIR}/init.lua" "${CONFIG_DIR}/init.lua"
-    echo "✅ Config copied to ${CONFIG_DIR}/init.lua"
-  else
+  if [ ! -f "${SCRIPT_DIR}/init.lua" ]; then
     echo "⚠️  init.lua not found in ${SCRIPT_DIR}"
     echo "   Please manually copy your init.lua to ${CONFIG_DIR}/init.lua"
+    return
   fi
+
+  # Check if config already exists and is identical
+  if [ -f "${CONFIG_DIR}/init.lua" ]; then
+    if cmp -s "${SCRIPT_DIR}/init.lua" "${CONFIG_DIR}/init.lua"; then
+      echo "✅ Config already up to date at ${CONFIG_DIR}/init.lua"
+      return
+    else
+      # Backup existing config before overwriting
+      local backup="${CONFIG_DIR}/init.lua.backup.$(date +%Y%m%d%H%M%S)"
+      cp "${CONFIG_DIR}/init.lua" "$backup"
+      echo "📋 Backed up existing config to ${backup}"
+    fi
+  fi
+
+  cp "${SCRIPT_DIR}/init.lua" "${CONFIG_DIR}/init.lua"
+  echo "✅ Config copied to ${CONFIG_DIR}/init.lua"
 }
 
 # Update PATH in shell config
