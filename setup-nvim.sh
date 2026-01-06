@@ -209,6 +209,14 @@ install_plugins() {
     echo "✅ which-key already installed"
   fi
 
+  # hydra - dependency for multicursors
+  if [ ! -d "${PLUGIN_DIR}/hydra.nvim" ]; then
+    git clone --depth 1 https://github.com/nvimtools/hydra.nvim.git "${PLUGIN_DIR}/hydra.nvim"
+    echo "✅ Installed hydra"
+  else
+    echo "✅ hydra already installed"
+  fi
+
   # plenary - required dependency for telescope
   if [ ! -d "${PLUGIN_DIR}/plenary.nvim" ]; then
     git clone --depth 1 https://github.com/nvim-lua/plenary.nvim.git "${PLUGIN_DIR}/plenary.nvim"
@@ -247,6 +255,14 @@ install_plugins() {
     echo "✅ Installed onedark colorscheme"
   else
     echo "✅ onedark already installed"
+  fi
+
+  # multicursors - multiple selections editing
+  if [ ! -d "${PLUGIN_DIR}/multicursors.nvim" ]; then
+    git clone --depth 1 https://github.com/smoka7/multicursors.nvim.git "${PLUGIN_DIR}/multicursors.nvim"
+    echo "✅ Installed multicursors"
+  else
+    echo "✅ multicursors already installed"
   fi
 }
 

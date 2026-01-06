@@ -68,6 +68,7 @@ if wk_ok then
     { "<leader>e", desc = "Toggle file explorer" },
     { "<leader>E", desc = "Find file in explorer" },
     { "<leader>?", desc = "Vim cheatsheet" },
+    { "<leader>m", desc = "Multicursor start" },
   })
 end
 
@@ -78,6 +79,15 @@ local cheat_ok, _ = pcall(require, "cheatsheet")
 if cheat_ok then
   -- Press <leader>? to open searchable cheatsheet
   vim.keymap.set("n", "<leader>?", "<cmd>Cheatsheet<CR>", { desc = "Vim cheatsheet" })
+end
+
+-----------------------------------------------------------
+-- Multicursors
+-----------------------------------------------------------
+local mc_ok, multicursors = pcall(require, "multicursors")
+if mc_ok then
+  multicursors.setup({})
+  vim.keymap.set({ "n", "v" }, "<leader>m", "<cmd>MCstart<CR>", { desc = "Multicursor start" })
 end
 
 -----------------------------------------------------------
@@ -178,4 +188,3 @@ else
     end,
   })
 end
-
