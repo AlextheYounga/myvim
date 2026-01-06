@@ -51,6 +51,19 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up centered" })
 -- Clear search highlight with Escape
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
+-- Toggle focus between nvim-tree and editor
+vim.keymap.set("n", "<leader><Tab>", function()
+  local ok, api = pcall(require, "nvim-tree.api")
+  if not ok then return end
+  
+  local current_ft = vim.bo.filetype
+  if current_ft == "NvimTree" then
+    vim.cmd("wincmd p")  -- Jump to previous window (editor)
+  else
+    api.tree.focus()     -- Focus or open tree
+  end
+end, { desc = "Toggle focus: tree <-> editor" })
+
 -----------------------------------------------------------
 -- Which-Key (keybinding cheatsheet)
 -----------------------------------------------------------
@@ -69,6 +82,7 @@ if wk_ok then
     { "<leader>E", desc = "Find file in explorer" },
     { "<leader>?", desc = "Vim cheatsheet" },
     { "<leader>m", desc = "Multicursor start" },
+    { "<leader><Tab>", desc = "Toggle focus: tree <-> editor" },
   })
 end
 
