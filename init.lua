@@ -3,6 +3,13 @@
 -----------------------------------------------------------
 vim.g.mapleader = " "      -- Space as leader
 
+-- Performance: speed up Lua module loading (Neovim 0.9+)
+pcall(function()
+  if vim.loader and vim.loader.enable then
+    vim.loader.enable()
+  end
+end)
+
 local opt = vim.opt
 
 opt.mouse = "a"            -- enable mouse in terminal
@@ -85,8 +92,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
 -----------------------------------------------------------
 -- Which-Key (keybinding cheatsheet)
 -----------------------------------------------------------
-local wk_ok, wk = pcall(require, "which-key")
-if wk_ok then
+vim.schedule(function()
+  local wk_ok, wk = pcall(require, "which-key")
+  if not wk_ok then return end
+
   wk.setup({
     delay = 300,  -- show popup after 300ms
     icons = {
@@ -98,7 +107,7 @@ if wk_ok then
   -- Don't register individual keys here; which-key v3 can override real mappings
   -- when given description-only entries. Keymaps with `desc` are auto-discovered.
   wk.add({ { "<leader>", group = "leader" } })
-end
+end)
 
 -----------------------------------------------------------
 -- Cheatsheet (searchable vim commands)
@@ -121,8 +130,10 @@ end
 -----------------------------------------------------------
 -- Treesitter (syntax highlighting)
 -----------------------------------------------------------
-local ts_ok, treesitter = pcall(require, "nvim-treesitter.configs")
-if ts_ok then
+vim.schedule(function()
+  local ts_ok, treesitter = pcall(require, "nvim-treesitter.configs")
+  if not ts_ok then return end
+
   treesitter.setup({
     -- Install languages automatically when opening a file
     auto_install = true,
@@ -147,13 +158,15 @@ if ts_ok then
       enable = true,  -- better auto-indentation
     },
   })
-end
+end)
 
 -----------------------------------------------------------
 -- File Explorer (nvim-tree)
 -----------------------------------------------------------
-local tree_ok, nvimtree = pcall(require, "nvim-tree")
-if tree_ok then
+vim.schedule(function()
+  local tree_ok, nvimtree = pcall(require, "nvim-tree")
+  if not tree_ok then return end
+
   -- Disable netrw (vim's built-in explorer) to avoid conflicts
   vim.g.loaded_netrw = 1
   vim.g.loaded_netrwPlugin = 1
@@ -185,14 +198,14 @@ if tree_ok then
   -- Keymaps
   vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
   vim.keymap.set("n", "<leader>E", "<cmd>NvimTreeFindFile<CR>", { desc = "Find current file in explorer" })
-end
+end)
 
 -----------------------------------------------------------
 -- OSC52 clipboard: any yank → local clipboard
 -----------------------------------------------------------
 -- Works over SSH, tmux, etc. - copies to YOUR local machine
-local ok, osc52 = pcall(require, "osc52")
-if ok then
+local osc52_ok, osc52 = pcall(require, "osc52")
+if osc52_ok then
   osc52.setup({
     max_length = 0,  -- no length limit
     silent = true,
