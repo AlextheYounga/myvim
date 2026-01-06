@@ -52,17 +52,35 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up centered" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Toggle focus between nvim-tree and editor
-vim.keymap.set("n", "<leader><Tab>", function()
-  local ok, api = pcall(require, "nvim-tree.api")
-  if not ok then return end
-  
-  local current_ft = vim.bo.filetype
-  if current_ft == "NvimTree" then
-    vim.cmd("wincmd p")  -- Jump to previous window (editor)
+-- NOTE: many terminals treat <Tab> as <C-i>. We map both.
+local function toggle_tree_focus()
+  local tree_api_ok, api = pcall(require, "nvim-tree.api")
+  if not tree_api_ok then return end
+
+  if vim.bo.filetype == "NvimTree" then
+    vim.cmd("wincmd p")
   else
-    api.tree.focus()     -- Focus or open tree
+    api.tree.focus()
   end
-end, { desc = "Toggle focus: tree <-> editor" })
+end
+
+-- Define this mapping late so plugins can't clobber it.
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    vim.keymap.set("n", "<leader><Tab>", toggle_tree_focus, {
+      desc = "Toggle focus: tree <-> editor",
+      silent = true,
+      noremap = true,
+      nowait = true,
+    })
+    vim.keymap.set("n", "<leader><C-i>", toggle_tree_focus, {
+      desc = "Toggle focus: tree <-> editor",
+      silent = true,
+      noremap = true,
+      nowait = true,
+    })
+  end,
+})
 
 -----------------------------------------------------------
 -- Which-Key (keybinding cheatsheet)
@@ -77,13 +95,9 @@ if wk_ok then
   })
 
   -- Register key groups for better organization
-  wk.add({
-    { "<leader>e", desc = "Toggle file explorer" },
-    { "<leader>E", desc = "Find file in explorer" },
-    { "<leader>?", desc = "Vim cheatsheet" },
-    { "<leader>m", desc = "Multicursor start" },
-    { "<leader><Tab>", desc = "Toggle focus: tree <-> editor" },
-  })
+  -- Don't register individual keys here; which-key v3 can override real mappings
+  -- when given description-only entries. Keymaps with `desc` are auto-discovered.
+  wk.add({ { "<leader>", group = "leader" } })
 end
 
 -----------------------------------------------------------
