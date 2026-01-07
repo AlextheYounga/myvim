@@ -21,6 +21,7 @@ opt.signcolumn = "yes"     -- always show sign column
 opt.updatetime = 250       -- faster completion
 opt.timeoutlen = 300       -- faster key sequence completion
 opt.clipboard = "unnamedplus" -- use system clipboard when available
+opt.textwidth = 100
 
 -- Search settings
 opt.ignorecase = true      -- ignore case in search
@@ -32,6 +33,14 @@ opt.expandtab = true       -- use spaces instead of tabs
 opt.shiftwidth = 2         -- shift 2 spaces
 opt.tabstop = 2            -- tab = 2 spaces
 opt.smartindent = true     -- auto-indent new lines
+
+-- Markdown specific settings
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  pattern = { '*.md' },
+  callback = function()
+    opt.textwidth = 80
+  end
+})
 
 -----------------------------------------------------------
 -- Colorscheme
